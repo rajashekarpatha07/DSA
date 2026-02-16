@@ -1,98 +1,137 @@
+// The blueprint for a single element in the list
 class Node {
   constructor(data, next = null) {
-    this.data = data;
-    this.next = next;
+    this.data = data; // The actual value stored in the node
+    this.next = next; // The pointer/reference to the next node in the sequence
   }
 }
 
+// The Linked List structure, which tracks the starting point
 class SingleLinkedList {
   constructor(head = null) {
-    this.head = head;
+    this.head = head; // The pointer to the very first node (starting point)
   }
 
+  // OPERATION: INSERT AT THE END (Time Complexity: O(n))
   insertAtEnd(value) {
-    // Step A: Create the new Node (it exists in memory, but isn't linked yet)
+    // Step 1: Create the new Node in memory
     let temp = new Node(value);
 
-    // Step B: Send an 'Assistant' (t1) to the start of the list
+    // Step 2: Set a traversal pointer (t1) starting at the head
     let t1 = this.head;
 
-    // Step C: Check if the list is NOT empty
+    // Step 3: Check if the list is NOT empty
     if (this.head != null) {
-      /** * Step D: The 'Look Ahead' Loop
-       * We ask: "Is there a node AFTER the one I'm currently holding?"
-       * We stop exactly ON the last node (where next is null).
+      /* * Step 4: Traverse the list to find the very last node.
+       * We stop moving when t1.next is null.
        */
       while (t1.next != null) {
-        t1 = t1.next; // Move Assistant to the next node
+        t1 = t1.next; // Move the pointer forward
       }
 
-      /** * Step E: Linking
-       * t1 is now standing on the last node.
-       * We take its empty 'next' hook and point it to our new node (temp).
+      /* * Step 5: Link the new node.
+       * Set the 'next' pointer of the last node to our new node.
        */
       t1.next = temp;
-    }
-    // Step F: If the list was empty (head was null)
+    } 
+    // Step 6: If the list was empty (head was null)
     else {
-      // The new node simply becomes the first node (head)
+      // The new node simply becomes the first node
       this.head = temp;
     }
   }
 
+  // OPERATION: INSERT AT THE BEGINNING (Time Complexity: O(1))
   insertAtBeg(value) {
-    // 1. Create a brand new Node (carriage) with the given value
+    // 1. Create a new Node with the given value
     const temp = new Node(value);
 
-    // 2. Point the 'next' hook of our new node to the current front of the train
-    // If the train was [21 -> 232], our new node now points to 21.
+    // 2. Point the 'next' reference of the new node to the current head
     temp.next = this.head;
 
-    // 3. Move the 'Anchor' (head) to our new node
-    // This officially makes our new node the first carriage in the train.
+    // 3. Update the head pointer to the new node, making it the new starting point
     this.head = temp;
 
-    /** * Why this is fast (O(1) complexity):
-     * Notice there is NO 'while' loop.
-     * Whether the list has 5 nodes or 5 million nodes,
-     * this operation always takes the same 3 steps.
+    /* * Note: This is an O(1) operation because it requires no traversal.
+     * It executes in constant time regardless of the list size.
      */
   }
 
+  // OPERATION: INSERT IN THE MIDDLE (Time Complexity: O(n))
   insertAtMid(value, x) {
-    // 1. Prepare the new carriage (New node)
+    // 1. Create the new node
     const temp = new Node(value);
 
-    // 2. Send a Worker (t1) to the front of the train (Engine)
+    // 2. Set a pointer (t1) to traverse the list starting from the head
     let t1 = this.head;
 
-    // 3. The Worker walks through the train while there are carriages to check
+    // 3. Traverse the list until the end is reached
     while (t1 != null) {
-      // 4. Checking the cargo: "Is this Carriage X?"
+      
+      // 4. Check if the current node contains the target value 'x'
       if (t1.data == x) {
-        /** * 5. THE SECURE STEP:
-         * Before we unhook Carriage X, our NEW carriage (temp) 
-         * must grab onto the carriage currently behind X (t1.next).
+        
+        /* * 5. CRITICAL ORDER STEP 1: 
+         * Connect the new node to the subsequent node first (t1.next).
+         * This prevents losing the reference to the rest of the list.
          */
         temp.next = t1.next;
 
-        /** * 6. THE COUPLING STEP:
-         * Now that the back of the train is secured to our new carriage,
-         * we can safely unhook Carriage X and hook it to the New one.
+        /* * 6. CRITICAL ORDER STEP 2:
+         * Update the target node's 'next' pointer to the new node.
          */
         t1.next = temp;
 
-        // 7. Job complete! The Worker leaves the train.
+        // 7. Insertion complete, exit the function to stop traversal
         return;
       }
-      // Move the worker to the next carriage so the loop doesn't run forever
+      
+      // Move the pointer forward to continue the search and avoid an infinite loop
       t1 = t1.next;
     }
   }
 
+  // OPERATION: DELETE A NODE (Time Complexity: O(n))
+  deleteLL(value) {
+    let t1 = this.head;
+    let prev = null; // Tracks the node immediately preceding 't1'
+
+    // CASE 1: The list is empty
+    if (t1 === null) return;
+
+    // CASE 2: The node to delete is the Head (First Node)
+    if (t1.data === value) {
+      this.head = t1.next; // Update the head pointer to the second node
+      return;
+    }
+
+    // CASE 3: Searching the rest of the list
+    while (t1 !== null) {
+      
+      // We found the target node to delete
+      if (t1.data === value) {
+        /* * THE BYPASS:
+         * Update the previous node's 'next' pointer to skip 't1' 
+         * and point directly to 't1.next'. 
+         * t1 is now disconnected and will be garbage collected.
+         */
+        prev.next = t1.next;
+        return;
+      }
+      // If not found, advance both pointers forward
+      else {
+        prev = t1;    // 'prev' catches up to 't1'
+        t1 = t1.next; // 't1' moves to the next node
+      }
+    }
+  }
+
+  // OPERATION: TRAVERSE AND PRINT (Time Complexity: O(n))
   printList() {
     let t1 = this.head;
     let result = "";
+    
+    // Traverse until the pointer falls off the end of the list
     while (t1 != null) {
       result += t1.data + " -> ";
       t1 = t1.next;
@@ -102,13 +141,25 @@ class SingleLinkedList {
   }
 } // End of Class
 
-// Execution
+// --- Execution & Testing ---
 const obj = new SingleLinkedList();
+
+// Test End Insertions
 obj.insertAtEnd(21);
 obj.insertAtEnd(232);
 obj.insertAtEnd(62);
 obj.insertAtEnd(43);
+
+// Test Beginning Insertion
 obj.insertAtBeg(5);
+
+// Test Mid and End Insertions
 obj.insertAtEnd(12);
 obj.insertAtMid(18, 62);
-obj.printList();
+
+// Test Deletion
+obj.deleteLL(43);
+
+// Output the final state
+obj.printList(); 
+// Expected Output: 5 -> 21 -> 232 -> 62 -> 18 -> 12 -> null
