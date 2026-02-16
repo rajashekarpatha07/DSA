@@ -6,6 +6,9 @@
 //   console.log(array[i]);
 // }
 
+// insert push to "right Start at the End	data[i] = data[i-1]"
+// delete pull "left "Start at the Holedata[i] = data[i+1]"
+
 class Array {
   constructor() {
     this.length = 0;
